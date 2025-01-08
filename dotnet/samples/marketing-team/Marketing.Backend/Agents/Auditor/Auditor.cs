@@ -3,22 +3,21 @@
 
 using Marketing.Shared;
 using Microsoft.AutoGen.Core;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Memory;
+using Microsoft.Extensions.AI;
 
 namespace Marketing.Agents;
 
-[TopicSubscription("default")]
-public class Auditor(IAgentContext context, Kernel kernel, ISemanticTextMemory memory, [FromKeyedServices("EventTypes")] EventTypes typeRegistry, ILogger<Auditor> logger)
-    : SKAiAgent<AuditorState>(context, memory, kernel, typeRegistry),
+    [TopicSubscription("default")]
+public class Auditor([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<Auditor> logger)
+    : AiAgent<AuditorState>(typeRegistry, chat, logger),
     IHandle<AuditText>
 {
-    public async Task Handle(AuditText item)
+    public async Task Handle(AuditText item, CancellationToken cancellationToken)
     {
         logger.LogInformation($"[{nameof(Auditor)}] Event {nameof(AuditText)}. Text: {{Text}}", item.Text);
 
-        var context = new KernelArguments { ["input"] = AppendChatHistory(item.Text) };
-        var auditorAnswer = await CallFunction(AuditorPrompts.AuditText, context);
+        //var context = new KernelArguments { ["input"] = AppendChatHistory(item.Text) };
+        var auditorAnswer = await CallFunction(AuditorPrompts.AuditText);
         if (auditorAnswer.Contains("NOTFORME", StringComparison.InvariantCultureIgnoreCase))
         {
             return;
@@ -33,8 +32,8 @@ public class Auditor(IAgentContext context, Kernel kernel, ISemanticTextMemory m
         {
             AuditorAlertMessage = auditorAlertMessage,
             UserId = userId
-        }.ToCloudEvent(this.AgentId.Key);
+        };
 
-        await PublishEvent(auditorAlert);
+        await PublishEventAsync(auditorAlert);
     }
 }

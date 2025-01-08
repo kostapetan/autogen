@@ -3,12 +3,11 @@
 
 using Marketing.Shared;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AutoGen.Agents;
-using Microsoft.AutoGen.Runtime;
+using Microsoft.AutoGen.Core;
 
 namespace Marketing.Backend.Hubs;
 
-public class ArticleHub(AgentWorker client) : Hub<IArticleHub>
+public class ArticleHub(Client client) : Hub<IArticleHub>
 {
     public override async Task OnConnectedAsync()
     {
@@ -33,7 +32,7 @@ public class ArticleHub(AgentWorker client) : Hub<IArticleHub>
 
         var evt = new UserChatInput { UserId = frontEndMessage.UserId, UserMessage = frontEndMessage.Message };
 
-        await client.PublishEventAsync(evt.ToCloudEvent(frontEndMessage.UserId));
+        await client.PublishEventAsync(evt);
     }
 
     public async Task ConnectToAgent(string userId)
@@ -57,6 +56,6 @@ public class ArticleHub(AgentWorker client) : Hub<IArticleHub>
             ["userMessage"] = frontEndMessage.Message,
         };
         var evt = new UserConnected { UserId = userId };
-        await client.PublishEventAsync(evt.ToCloudEvent(userId));
+        await client.PublishEventAsync(evt);
     }
 }

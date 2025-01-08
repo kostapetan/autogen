@@ -3,8 +3,7 @@
 
 using Marketing.Shared;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AutoGen.Agents;
-using Microsoft.AutoGen.Runtime;
+using Microsoft.AutoGen.Core;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,9 +11,9 @@ namespace Marketing.Backend.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class Articles(AgentWorker client) : ControllerBase
+public class Articles(Client client) : ControllerBase
 {
-    private readonly AgentWorker _client = client;
+    private readonly Client _client = client;
 
     //// GET api/<Post>/5
     //[HttpGet("{id}")]
@@ -34,7 +33,7 @@ public class Articles(AgentWorker client) : ControllerBase
             UserId = userId,
             UserMessage = userMessage,
         };
-        await _client.PublishEventAsync(evt.ToCloudEvent(userId));
+        await _client.PublishEventAsync(evt);
 
         return $"Task {userId} accepted";
     }

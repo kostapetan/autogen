@@ -2,22 +2,27 @@
 // Program.cs
 
 using Marketing.Backend.Agents;
-using Marketing.Shared;
 using Marketing.Backend.Hubs;
-using Microsoft.AutoGen.Agents;
+using Marketing.Agents;
+using Microsoft.AutoGen.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.ConfigureSemanticKernel();
 
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
-builder.AddAgentWorker(builder.Configuration["AGENT_HOST"]!)
+
+builder.AddGrpcAgentWorker(builder.Configuration["AGENT_HOST"]!)
+    .AddAgentHost()
+    .AddAgent<Writer>("writer")
+    .AddAgent<GraphicDesigner>("graphic-designer")
+    .AddAgent<Auditor>("auditor")
+    .AddAgent<CommunityManager>("community-manager")
     .AddAgent<SignalRAgent>("signalr-hub");
-builder.Services.AddSingleton<AgentWorker>();
+
 builder.Services.AddSingleton<ISignalRService, SignalRService>();
 
 // Allow any CORS origin if in DEV

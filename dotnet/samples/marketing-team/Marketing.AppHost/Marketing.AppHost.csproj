@@ -1,4 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -21,8 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Marketing.Agents\Marketing.Agents.csproj" />
-    <ProjectReference Include="..\Marketing.AgentHost\Marketing.AgentHost.csproj" />
     <ProjectReference Include="..\Marketing.Backend\Marketing.Backend.csproj" />
   </ItemGroup>
 

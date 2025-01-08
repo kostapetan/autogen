@@ -5,27 +5,20 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddAzureProvisioning();
 
-var orleans = builder.AddOrleans("orleans")
-    .WithDevelopmentClustering();
+var agentHost = builder.AddContainer("agent-host", "autogen-host")
+                       .WithEnvironment("ASPNETCORE_URLS", "https://+;http://+")
+                       .WithEnvironment("ASPNETCORE_HTTPS_PORTS", "5001")
+                       .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", "mysecurepass")
+                       .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", "/https/devcert.pfx")
+                       .WithBindMount("./certs", "/https/", true)
+                       .WithHttpsEndpoint(targetPort: 5001);
 
-var agentHost = builder.AddProject<Projects.Marketing_AgentHost>("agenthost")
-    .WithReference(orleans);
 var agentHostHttps = agentHost.GetEndpoint("https");
 
 var backend = builder.AddProject<Projects.Marketing_Backend>("backend")
     .WithEnvironment("AGENT_HOST", $"{agentHostHttps.Property(EndpointProperty.Url)}")
     .WithEnvironment("OpenAI__Key", builder.Configuration["OpenAI:Key"])
     .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"]);
-
-builder.AddProject<Projects.Marketing_Agents>("marketing-agents")
-    .WithEnvironment("AGENT_HOST", $"{agentHostHttps.Property(EndpointProperty.Url)}")
-    .WithEnvironment("OpenAI__Key", builder.Configuration["OpenAI:Key"])
-    .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"]);
-
-//var ep = agentHost.GetEndpoint("http");
-
-//builder.AddPythonProject("python-worker", "../../../../../python/", "./packages/autogen-core/samples/marketing-team/worker.py")
-//        .WithEnvironment("AGENT_HOST", $"{agentHostHttps.Property(EndpointProperty.Host)}:{agentHostHttps.Property(EndpointProperty.Port)}");
 
 builder.AddNpmApp("frontend", "../Marketing.Frontend", "dev")
     .WithReference(backend)
