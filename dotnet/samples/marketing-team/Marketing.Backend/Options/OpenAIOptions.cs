@@ -3,7 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Marketing.Shared.Options;
+namespace Marketing.Backend.Options;
 
 public class OpenAIOptions
 {

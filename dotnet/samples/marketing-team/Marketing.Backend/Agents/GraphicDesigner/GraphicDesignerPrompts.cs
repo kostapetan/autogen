@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // GraphicDesignerPrompts.cs
 
-namespace Marketing.Agents;
+namespace Marketing.Backend.Agents.GraphicDesigner;
 
 public static class GraphicDesignerPrompts
 {

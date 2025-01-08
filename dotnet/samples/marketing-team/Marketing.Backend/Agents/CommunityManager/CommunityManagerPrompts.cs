@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // CommunityManagerPrompts.cs
 
-namespace Marketing.Agents;
+namespace Marketing.Backend.Agents.CommunityManager;
 
 public static class CommunityManagerPrompts
 {

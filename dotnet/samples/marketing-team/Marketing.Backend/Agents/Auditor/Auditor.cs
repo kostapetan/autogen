@@ -5,12 +5,12 @@ using Marketing.Shared;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.AI;
 
-namespace Marketing.Agents;
+namespace Marketing.Backend.Agents.Auditor;
 
-    [TopicSubscription("default")]
+[TopicSubscription("default")]
 public class Auditor([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<Auditor> logger)
-    : AiAgent<AuditorState>(typeRegistry, chat, logger),
-    IHandle<AuditText>
+: AiAgent<AuditorState>(typeRegistry, chat, logger),
+IHandle<AuditText>
 {
     public async Task Handle(AuditText item, CancellationToken cancellationToken)
     {

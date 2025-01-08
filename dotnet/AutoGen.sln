@@ -56,8 +56,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketing.Backend", "sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketing.ServiceDefaults", "samples\marketing-team\Marketing.ServiceDefaults\Marketing.ServiceDefaults.csproj", "{49FFB702-982C-70B9-725B-5D309F1504EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marketing.Shared", "samples\marketing-team\Marketing.Shared\Marketing.Shared.csproj", "{F450DE18-7B7A-8EB9-4F41-6A230F0A97B8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,10 +122,6 @@ Global
 		{49FFB702-982C-70B9-725B-5D309F1504EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49FFB702-982C-70B9-725B-5D309F1504EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49FFB702-982C-70B9-725B-5D309F1504EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F450DE18-7B7A-8EB9-4F41-6A230F0A97B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F450DE18-7B7A-8EB9-4F41-6A230F0A97B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F450DE18-7B7A-8EB9-4F41-6A230F0A97B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F450DE18-7B7A-8EB9-4F41-6A230F0A97B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,7 +144,6 @@ Global
 		{835E505E-0CD1-2799-FD51-BBB5A661531F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{AF47D9B6-DD04-3EC3-D01B-32AC00F6306E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{49FFB702-982C-70B9-725B-5D309F1504EE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
-		{F450DE18-7B7A-8EB9-4F41-6A230F0A97B8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93384647-528D-46C8-922C-8DB36A382F0B}

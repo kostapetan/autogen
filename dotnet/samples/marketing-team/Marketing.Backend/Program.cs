@@ -3,8 +3,11 @@
 
 using Marketing.Backend.Agents;
 using Marketing.Backend.Hubs;
-using Marketing.Agents;
 using Microsoft.AutoGen.Core;
+using Marketing.Backend.Agents.CommunityManager;
+using Marketing.Backend.Agents.GraphicDesigner;
+using Marketing.Backend.Agents.Writer;
+using Marketing.Backend.Agents.Auditor;
 
 var builder = WebApplication.CreateBuilder(args);
 

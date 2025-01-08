@@ -5,7 +5,7 @@ using Marketing.Shared;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.AI;
 
-namespace Marketing.Agents;
+namespace Marketing.Backend.Agents.CommunityManager;
 
 [TopicSubscription("default")]
 public class CommunityManager([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<CommunityManager> logger)

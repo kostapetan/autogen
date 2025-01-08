@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // WriterPrompts.cs
 
-namespace Marketing.Agents;
+namespace Marketing.Backend.Agents.Writer;
 
 public static class WriterPrompts
 {

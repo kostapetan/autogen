@@ -5,7 +5,7 @@ using Marketing.Shared;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.AI;
 
-namespace Marketing.Agents;
+namespace Marketing.Backend.Agents.GraphicDesigner;
 
 [TopicSubscription("default")]
 public class GraphicDesigner([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<GraphicDesigner> logger)

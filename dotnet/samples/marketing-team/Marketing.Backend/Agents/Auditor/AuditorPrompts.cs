@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // AuditorPrompts.cs
 
-namespace Marketing.Agents;
+namespace Marketing.Backend.Agents.Auditor;
 
 public static class AuditorPrompts
 {

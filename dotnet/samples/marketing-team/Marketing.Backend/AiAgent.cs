@@ -3,9 +3,8 @@
 
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
 
-namespace Marketing.Shared;
+namespace Marketing.Backend;
 
 public class AiAgent<T>(AgentsMetadata eventTypes, IChatClient chat, ILogger<AiAgent<T>> logger) : Agent(eventTypes, logger)
 {
