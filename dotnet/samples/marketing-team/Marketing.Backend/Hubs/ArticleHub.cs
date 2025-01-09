@@ -32,7 +32,7 @@ public class ArticleHub(Client client) : Hub<IArticleHub>
 
         var evt = new UserChatInput { UserId = frontEndMessage.UserId, UserMessage = frontEndMessage.Message };
 
-        await client.PublishEventAsync(evt);
+        await client.PublishEventAsync(evt, topic: Consts.TopicName, key: evt.UserId);
     }
 
     public async Task ConnectToAgent(string userId)
@@ -56,6 +56,6 @@ public class ArticleHub(Client client) : Hub<IArticleHub>
             ["userMessage"] = frontEndMessage.Message,
         };
         var evt = new UserConnected { UserId = userId };
-        await client.PublishEventAsync(evt);
+        await client.PublishEventAsync(evt, topic: Consts.TopicName, key: userId);
     }
 }

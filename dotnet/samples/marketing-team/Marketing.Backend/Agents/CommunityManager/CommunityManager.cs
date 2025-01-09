@@ -7,7 +7,7 @@ using Microsoft.Extensions.AI;
 
 namespace Marketing.Backend.Agents.CommunityManager;
 
-[TopicSubscription("default")]
+[TopicSubscription(Consts.TopicName)]
 public class CommunityManager([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<CommunityManager> logger)
     : AiAgent<CommunityManagerState>(typeRegistry, chat, logger),
     IHandle<UserConnected>,
@@ -63,7 +63,7 @@ public class CommunityManager([FromKeyedServices("AgentsMetadata")] AgentsMetada
             UserId = userId
         };
 
-        await PublishEventAsync(socialMediaPostCreatedEvent);
+        await PublishEventAsync(socialMediaPostCreatedEvent, topic: Consts.TopicName);
     }
 
     // This is just an example on how you can synchronously call an specific agent

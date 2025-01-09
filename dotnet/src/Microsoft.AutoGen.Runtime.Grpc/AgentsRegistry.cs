@@ -3,9 +3,10 @@
 
 using Microsoft.AutoGen.Contracts;
 using Microsoft.AutoGen.Runtime.Grpc.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AutoGen.Runtime.Grpc;
-internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore")] IPersistentState<AgentsRegistryState> state) : Grain, IGrainRegistry
+internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore")] IPersistentState<AgentsRegistryState> state, ILogger<AgentsRegistry> logger) : Grain, IGrainRegistry
 {
     // TODO: use persistent state for some of these or (better) extend Orleans to implement some of this natively.
     private readonly Dictionary<IGateway, WorkerState> _workerStates = new();
@@ -21,6 +22,10 @@ internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore"
 
     public ValueTask<List<string>> GetSubscribedAndHandlingAgents(string topic, string eventType)
     {
+        var topics = string.Join("/n",state.State.TopicToAgentTypesMap.Keys);
+        var events = string.Join("/n", state.State.EventsToAgentTypesMap.Keys);
+        logger.LogInformation($"Registered topics:{topics}");
+        logger.LogInformation($"Registered events: {events}");
         // get all agent types that are subscribed to the topic
         var subscribedAgents = state.State.TopicToAgentTypesMap[topic];
         // get all agent types that are handling the event

@@ -7,7 +7,7 @@ using Microsoft.Extensions.AI;
 
 namespace Marketing.Backend.Agents.Writer;
 
-[TopicSubscription("default")]
+[TopicSubscription(Consts.TopicName)]
 public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<Writer> logger)
     : AiAgent<CommunityManagerState>(typeRegistry, chat, logger),
     IHandle<UserConnected>,
@@ -36,9 +36,10 @@ public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeReg
         {
             return;
         }
-        // TODO: Implement
-        // var agentState = _state.Data.ToAgentState(this.AgentId, "Etag");
-        //  await Store("WrittenArticle", newArticle);
+
+        var agentState = await ReadAsync<CommunityManagerState>(AgentId);
+        agentState.Article = newArticle;
+        await StoreAsync(agentState.ToAgentState(AgentId, ""));
         await SendArticleCreatedEvent(newArticle, item.UserId);
     }
 
@@ -68,8 +69,8 @@ public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeReg
             UserId = userId
         };
 
-        await PublishEventAsync(articleCreatedEvent);
-        await PublishEventAsync(auditTextEvent);
+        await PublishEventAsync(articleCreatedEvent, topic: Consts.TopicName);
+        await PublishEventAsync(auditTextEvent, topic: Consts.TopicName);
     }
 
     public Task<string> GetArticle()

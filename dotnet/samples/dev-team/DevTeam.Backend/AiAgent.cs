@@ -4,7 +4,7 @@
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.AI;
 
-namespace DevTeam.Agents;
+namespace DevTeam.Backend;
 
 public class AiAgent<T>(AgentsMetadata eventTypes, IChatClient chat, ILogger<AiAgent<T>> logger) : Agent(eventTypes, logger)
 {
@@ -13,11 +13,12 @@ public class AiAgent<T>(AgentsMetadata eventTypes, IChatClient chat, ILogger<AiA
         throw new NotImplementedException();
     }
 
-    protected async Task<string> CallFunction(string prompt, ChatOptions? chatOptions=null)
+    protected async Task<string> CallFunction(string prompt, ChatOptions? chatOptions = null)
     {
         if (chatOptions == null)
         {
-            chatOptions = new ChatOptions() {
+            chatOptions = new ChatOptions()
+            {
                 Temperature = 0.8f,
                 TopP = 1,
                 MaxOutputTokens = 4096

@@ -9,7 +9,7 @@ using Marketing.Backend.Hubs;
 
 namespace Marketing.Backend.Agents;
 
-[TopicSubscription("default")]
+[TopicSubscription(Consts.TopicName)]
 public class SignalRAgent([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat,ISignalRService signalRClient, ILogger<SignalRAgent> logger)
     : AiAgent<AgentState>(typeRegistry, chat, logger),
     IHandle<ArticleCreated>,

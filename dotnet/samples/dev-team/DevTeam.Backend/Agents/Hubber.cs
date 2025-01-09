@@ -2,6 +2,7 @@
 // Hubber.cs
 
 using System.Text.Json;
+using DevTeam.Backend.Models;
 using DevTeam.Backend.Services;
 using Microsoft.AutoGen.Core;
 

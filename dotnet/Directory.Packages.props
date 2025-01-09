@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <MicrosoftSemanticKernelVersion>1.22.0</MicrosoftSemanticKernelVersion>
     <MicrosoftSemanticKernelExperimentalVersion>1.22.0-alpha</MicrosoftSemanticKernelExperimentalVersion>
-    <MicrosoftExtensionsAIVersion>9.0.0-preview.9.24525.1</MicrosoftExtensionsAIVersion>
+    <MicrosoftExtensionsAIVersion>9.0.1-preview.1.24570.5</MicrosoftExtensionsAIVersion>
     <MicrosoftExtensionConfiguration>9.0.0</MicrosoftExtensionConfiguration>
     <MicrosoftExtensionDependencyInjection>9.0.0</MicrosoftExtensionDependencyInjection>
     <MicrosoftExtensionLogging>9.0.0</MicrosoftExtensionLogging>

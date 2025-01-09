@@ -7,7 +7,7 @@ using Microsoft.Extensions.AI;
 
 namespace Marketing.Backend.Agents.Auditor;
 
-[TopicSubscription("default")]
+[TopicSubscription(Consts.TopicName)]
 public class Auditor([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<Auditor> logger)
 : AiAgent<AuditorState>(typeRegistry, chat, logger),
 IHandle<AuditText>
@@ -34,6 +34,6 @@ IHandle<AuditText>
             UserId = userId
         };
 
-        await PublishEventAsync(auditorAlert);
+        await PublishEventAsync(auditorAlert, topic: Consts.TopicName);
     }
 }

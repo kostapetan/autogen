@@ -7,7 +7,7 @@ using Microsoft.AutoGen.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.AutoGen.Core;
+namespace Microsoft.AutoGen.Core.Grpc;
 
 public static class GrpcAgentWorkerHostBuilderExtensions
 {

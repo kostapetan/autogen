@@ -7,7 +7,7 @@ using Microsoft.Extensions.AI;
 
 namespace Marketing.Backend.Agents.GraphicDesigner;
 
-[TopicSubscription("default")]
+[TopicSubscription(Consts.TopicName)]
 public class GraphicDesigner([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<GraphicDesigner> logger)
     : AiAgent<GraphicDesignerState>(typeRegistry, chat, logger),
     IHandle<UserConnected>,
@@ -49,6 +49,6 @@ public class GraphicDesigner([FromKeyedServices("AgentsMetadata")] AgentsMetadat
             UserId = userId
         };
 
-        await PublishEventAsync(graphicDesignEvent);
+        await PublishEventAsync(graphicDesignEvent, topic: Consts.TopicName);
     }
 }

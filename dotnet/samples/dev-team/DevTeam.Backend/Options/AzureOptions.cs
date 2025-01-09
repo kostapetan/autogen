@@ -3,7 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace DevTeam.Options;
+namespace DevTeam.Backend.Options;
 
 public class AzureOptions
 {
