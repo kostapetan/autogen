@@ -22,10 +22,6 @@ internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore"
 
     public ValueTask<List<string>> GetSubscribedAndHandlingAgents(string topic, string eventType)
     {
-        var topics = string.Join("/n",state.State.TopicToAgentTypesMap.Keys);
-        var events = string.Join("/n", state.State.EventsToAgentTypesMap.Keys);
-        logger.LogInformation($"Registered topics:{topics}");
-        logger.LogInformation($"Registered events: {events}");
         // get all agent types that are subscribed to the topic
         var subscribedAgents = state.State.TopicToAgentTypesMap[topic];
         // get all agent types that are handling the event
@@ -75,6 +71,9 @@ internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore"
     }
     public async ValueTask RegisterAgentType(RegisterAgentTypeRequest registration, IGateway worker)
     {
+        logger.LogInformation($"Registry for agent type {registration.Type}.");
+        logger.LogInformation($"Registry events {string.Join(",", registration.Events)}");
+        logger.LogInformation($"Registry topics {string.Join(",", registration.Topics)}");
         if (!_supportedAgentTypes.TryGetValue(registration.Type, out var supportedAgentTypes))
         {
             supportedAgentTypes = _supportedAgentTypes[registration.Type] = [];
@@ -113,7 +112,8 @@ internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore"
 
             eventSet.Add(registration.Type);
         }
-        await state.WriteStateAsync().ConfigureAwait(false);
+        await state.WriteStateAsync();
+        logger.LogInformation($"Successfully stored {registration.Type}.");
     }
     public ValueTask AddWorker(IGateway worker)
     {

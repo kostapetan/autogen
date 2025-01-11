@@ -41,6 +41,7 @@ public sealed class GrpcAgentWorker(
     private readonly ILogger<GrpcAgentWorker> _logger = logger;
     private readonly DistributedContextPropagator _distributedContextPropagator = distributedContextPropagator;
     private readonly CancellationTokenSource _shutdownCts = CancellationTokenSource.CreateLinkedTokenSource(hostApplicationLifetime.ApplicationStopping);
+    private readonly TaskCompletionSource _channelOpen = new();
     private AsyncDuplexStreamingCall<Message, Message>? _channel;
     private Task? _readTask;
     private Task? _writeTask;
@@ -287,10 +288,11 @@ public sealed class GrpcAgentWorker(
                 {
                     _channel?.Dispose();
                     _channel = _client.OpenChannel(cancellationToken: _shutdownCts.Token);
+                    _channelOpen.TrySetResult();
                 }
             }
         }
-
+        _logger.LogInformation("Channel is open");
         return _channel;
     }
 
@@ -298,14 +300,13 @@ public sealed class GrpcAgentWorker(
     {
         _channel = GetChannel();
         StartCore();
-
+        await _channelOpen.Task;
         var tasks = new List<Task>(_agentTypes.Count);
         foreach (var (typeName, type) in _configuredAgentTypes)
         {
             tasks.Add(RegisterAgentTypeAsync(typeName, type, cancellationToken).AsTask());
         }
-
-        await Task.WhenAll(tasks).ConfigureAwait(true);
+        await Task.WhenAll(tasks);
 
         void StartCore()
         {

@@ -83,7 +83,6 @@ public sealed class GrpcGateway : BackgroundService, IGateway
     {
         try
         {
-
             var connection = _workersByConnection[request.RequestId];
             //connection.AddSupportedType(request.Type);
             _supportedAgentTypes.GetOrAdd(request.Type, _ => []).Add(connection);
@@ -97,6 +96,7 @@ public sealed class GrpcGateway : BackgroundService, IGateway
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, $"Failed to register agent {request.Type}");
             return new RegisterAgentTypeResponse
             {
                 Success = false,

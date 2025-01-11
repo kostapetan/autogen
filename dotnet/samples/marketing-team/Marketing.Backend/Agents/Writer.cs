@@ -46,9 +46,9 @@ public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeReg
             return;
         }
 
-        var agentState = await ReadAsync<CommunityManagerState>(AgentId);
-        agentState.Article = newArticle;
-        await StoreAsync(agentState.ToAgentState(AgentId, ""));
+        //var agentState = await ReadAsync<CommunityManagerState>(AgentId);
+        //agentState.Article = newArticle;
+        //await StoreAsync(agentState.ToAgentState(AgentId, ""));
         await SendArticleCreatedEvent(newArticle, item.UserId);
     }
 
