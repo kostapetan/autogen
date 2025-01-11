@@ -5,7 +5,7 @@ using Marketing.Shared;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.AI;
 
-namespace Marketing.Backend.Agents.CommunityManager;
+namespace Marketing.Backend.Agents;
 
 [TopicSubscription(Consts.TopicName)]
 public class CommunityManager([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<CommunityManager> logger)
@@ -31,9 +31,18 @@ public class CommunityManager([FromKeyedServices("AgentsMetadata")] AgentsMetada
     private async Task HandleGeneration(string userId, string userMessage)
     {
         var input = /*_state.Data.Article +*/ "| USER REQUEST: " + userMessage;
-        //var context = new KernelArguments { ["input"] = AppendChatHistory(input) };
-        _logger.LogInformation($"{input}");
-        var socialMediaPost = await CallFunction(CommunityManagerPrompts.WritePost);
+        var prompt = $"""
+                    You are a Marketing community manager writer.
+                    If the request from the user is to write a post to promote a new product, or if it is specifically talking to you (community manager) 
+                    then you should write a post based on the user request.
+                    Your writings are going to be posted on Twitter. So be informal, friendly and add some hashtags and emojis.
+                    Remember, the tweet cannot be longer than 280 characters.
+                    If the request was not intended for you, reply with <NOTFORME>"
+                    ---
+                    Input: {input}
+                    ---
+                    """;
+        var socialMediaPost = await CallFunction(prompt);
         if (socialMediaPost.Contains("NOTFORME", StringComparison.InvariantCultureIgnoreCase))
         {
             return;

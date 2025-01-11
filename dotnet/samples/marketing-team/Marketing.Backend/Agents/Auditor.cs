@@ -5,7 +5,7 @@ using Marketing.Shared;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.AI;
 
-namespace Marketing.Backend.Agents.Auditor;
+namespace Marketing.Backend.Agents;
 
 [TopicSubscription(Consts.TopicName)]
 public class Auditor([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry, IChatClient chat, ILogger<Auditor> logger)
@@ -16,8 +16,17 @@ IHandle<AuditText>
     {
         logger.LogInformation($"[{nameof(Auditor)}] Event {nameof(AuditText)}. Text: {{Text}}", item.Text);
 
-        //var context = new KernelArguments { ["input"] = AppendChatHistory(item.Text) };
-        var auditorAnswer = await CallFunction(AuditorPrompts.AuditText);
+        var prompt = $"""
+                    You are an Auditor in a Marketing team.
+                    Audit the text below and make sure we do not give discounts larger than 50%.
+                    If the text talks about a larger than 50% discount, reply with a message to the user saying that the discount is too large, and by company policy we are not allowed.
+                    If the message says who wrote it, add that information in the response as well.
+                    In any other case, reply with NOTFORME
+                    ---
+                    Input: {item.Text}
+                    ---
+                    """;
+        var auditorAnswer = await CallFunction(prompt);
         if (auditorAnswer.Contains("NOTFORME", StringComparison.InvariantCultureIgnoreCase))
         {
             return;

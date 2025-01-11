@@ -4,10 +4,7 @@
 using Marketing.Backend.Agents;
 using Marketing.Backend.Hubs;
 using Microsoft.AutoGen.Core;
-using Marketing.Backend.Agents.CommunityManager;
 using Marketing.Backend.Agents.GraphicDesigner;
-using Marketing.Backend.Agents.Writer;
-using Marketing.Backend.Agents.Auditor;
 using Microsoft.AutoGen.Core.Grpc;
 using Marketing.ServiceDefaults;
 using Azure.AI.OpenAI;
