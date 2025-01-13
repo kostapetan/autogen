@@ -18,7 +18,8 @@ var agentHostHttps = agentHost.GetEndpoint("https");
 var backend = builder.AddProject<Projects.Marketing_Backend>("backend")
     .WithEnvironment("AGENT_HOST", $"{agentHostHttps.Property(EndpointProperty.Url)}")
     .WithEnvironment("OpenAI__Key", builder.Configuration["OpenAI:Key"])
-    .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"]);
+    .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"])
+    .WaitFor(agentHost);
 
 builder.AddNpmApp("frontend", "../Marketing.Frontend", "dev")
     .WithReference(backend)

@@ -300,15 +300,8 @@ public sealed class GrpcAgentWorker(
     {
         _channel = GetChannel();
         StartCore();
-        await _channelOpen.Task;
-        var tasks = new List<Task>(_agentTypes.Count);
-        foreach (var (typeName, type) in _configuredAgentTypes)
-        {
-            tasks.Add(RegisterAgentTypeAsync(typeName, type, cancellationToken).AsTask());
-        }
-        await Task.WhenAll(tasks);
-
-        void StartCore()
+       
+        async void StartCore()
         {
             var didSuppress = false;
             if (!ExecutionContext.IsFlowSuppressed())
@@ -321,14 +314,24 @@ public sealed class GrpcAgentWorker(
             {
                 _readTask = Task.Run(RunReadPump, CancellationToken.None);
                 _writeTask = Task.Run(RunWritePump, CancellationToken.None);
+                await RegisterAgents(CancellationToken.None).ConfigureAwait(false);
             }
             finally
             {
-                if (didSuppress)
+                if (didSuppress && ExecutionContext.IsFlowSuppressed())
                 {
                     ExecutionContext.RestoreFlow();
                 }
             }
+        }
+    }
+
+    public async ValueTask RegisterAgents(CancellationToken cancellationToken)
+    {
+        await _channelOpen.Task;
+        foreach (var (typeName, type) in _configuredAgentTypes)
+        {
+            await RegisterAgentTypeAsync(typeName, type, cancellationToken);
         }
     }
 

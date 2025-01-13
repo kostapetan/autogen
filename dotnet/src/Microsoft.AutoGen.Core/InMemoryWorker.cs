@@ -218,4 +218,9 @@ public class InMemoryWorker : IHostedService, IAgentWorker
 
         return agent;
     }
+
+    public ValueTask RegisterAgentsAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

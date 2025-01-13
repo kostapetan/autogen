@@ -68,7 +68,7 @@ public static class HostBuilderExtensions
         {
             return ReflectionHelper.GetAgentsMetadata(assemblies);
         });
-        builder.Services.AddSingleton( (s) => {
+        builder.Services.AddSingleton((s) => {
             var agentWorker = s.GetRequiredService<IAgentWorker>();
             var dctx = s.GetRequiredService<DistributedContextPropagator>();
             var agentId = new AgentId { Key = "client", Type = ""};
