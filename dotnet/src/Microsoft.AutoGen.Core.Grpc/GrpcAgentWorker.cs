@@ -369,15 +369,7 @@ public sealed class GrpcAgentWorker(
     public async ValueTask<AgentState> ReadAsync(AgentId agentId, CancellationToken cancellationToken = default)
     {
         var response = await _client.GetStateAsync(agentId).ConfigureAwait(true);
-        //        if (response.Success && response.AgentState.AgentId is not null) - why is success always false?
-        if (response.AgentState.AgentId is not null)
-        {
-            return response.AgentState;
-        }
-        else
-        {
-            throw new KeyNotFoundException($"Failed to read AgentState for {agentId}.");
-        }
+        return response.AgentState;
     }
 }
 

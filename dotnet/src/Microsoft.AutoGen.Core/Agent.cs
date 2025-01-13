@@ -44,7 +44,7 @@ public abstract class Agent
 
     protected internal ILogger<Agent> _logger;
     protected readonly AgentsMetadata EventTypes;
-    private readonly ConcurrentDictionary<Type, MethodInfo> _handlersByMessageType;
+    private readonly ConcurrentDictionary<System.Type, MethodInfo> _handlersByMessageType;
     private readonly CancellationTokenSource _agentCancelationSource = new();
 
    
@@ -161,10 +161,14 @@ public abstract class Agent
     /// <param name="agentId">The ID of the agent whose state is to be read.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A task representing the asynchronous operation, containing the agent state.</returns>
-    public async Task<T> ReadAsync<T>(AgentId agentId, CancellationToken cancellationToken = default) where T : IMessage, new()
+    public async Task<T?> ReadAsync<T>(AgentId agentId, CancellationToken cancellationToken = default) where T : IMessage, new()
     {
         var agentState = await Context!.ReadAsync(agentId, cancellationToken).ConfigureAwait(false);
-        return agentState.FromAgentState<T>();
+        if(agentState.ProtoData.Value != ByteString.Empty)
+        {
+            return agentState.FromAgentState<T>();
+        }
+        return default;
     }
 
     private void OnResponseCore(RpcResponse response)

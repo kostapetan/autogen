@@ -17,7 +17,7 @@ public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeReg
     public async Task Handle(UserConnected item, CancellationToken cancellationToken)
     {
         logger.LogInformation($"User Connected: {item.UserId}");
-        var lastMessage = "";// _state.History.LastOrDefault()?.Message;
+        var lastMessage = "";
         if (string.IsNullOrWhiteSpace(lastMessage))
         {
             return;
@@ -29,7 +29,6 @@ public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeReg
     public async Task Handle(UserChatInput item, CancellationToken cancellationToken)
     {
         logger.LogInformation($"UserChatInput: {item.UserMessage}");
-        //var context = new KernelArguments { ["input"] = AppendChatHistory(item.UserMessage) };
         var prompt = $"""
                     This is a multi agent app. You are a Marketing Campaign writer Agent.
                     If the request is not for you, answer with <NOTFORME>.
@@ -46,15 +45,17 @@ public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeReg
             return;
         }
 
-        //var agentState = await ReadAsync<CommunityManagerState>(AgentId);
-        //agentState.Article = newArticle;
-        //await StoreAsync(agentState.ToAgentState(AgentId, ""));
+        var agentState = await ReadAsync<CommunityManagerState>(AgentId);
+        agentState ??= new CommunityManagerState();
+        agentState.Article = newArticle;
+        await StoreAsync(agentState.ToAgentState(AgentId, ""));
         await SendArticleCreatedEvent(newArticle, item.UserId);
     }
 
     public async Task Handle(AuditorAlert item, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Auditor feedback: {item.AuditorAlertMessage}");
+
         var prompt = $"""
                     This is a multi agent app. You are a Marketing Campaign writer Agent.
                     If the request is not for you, answer with <NOTFORME>.
@@ -66,6 +67,10 @@ public class Writer([FromKeyedServices("AgentsMetadata")] AgentsMetadata typeReg
                     Return only the new campaign text but adjusted to the auditor request
                     """;
         var newArticle = await CallFunction(prompt);
+        var agentState = await ReadAsync<CommunityManagerState>(AgentId);
+        agentState ??= new CommunityManagerState();
+        agentState.Article = newArticle;
+        await StoreAsync(agentState.ToAgentState(AgentId, ""));
         if (newArticle.Contains("NOTFORME", StringComparison.InvariantCultureIgnoreCase))
         {
             return;

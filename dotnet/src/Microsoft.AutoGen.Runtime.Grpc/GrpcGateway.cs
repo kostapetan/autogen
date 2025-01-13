@@ -69,6 +69,7 @@ public sealed class GrpcGateway : BackgroundService, IGateway
 
     public async ValueTask StoreAsync(Contracts.AgentState value)
     {
+        _logger.LogInformation($"AgentState with: {value.AgentId.Type}:{value.AgentId.Key} and proto:{value.ProtoData.Value}");
         var agentState = _clusterClient.GetGrain<IAgentGrain>($"{value.AgentId.Type}:{value.AgentId.Key}");
         await agentState.WriteStateAsync(value, value.ETag);
     }
