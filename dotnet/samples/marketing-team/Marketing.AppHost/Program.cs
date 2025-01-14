@@ -5,12 +5,13 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddAzureProvisioning();
 
-var agentHost = builder.AddContainer("agent-host", "autogen-host")
+var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/agent-host","v1")
                        .WithEnvironment("ASPNETCORE_URLS", "https://+;http://+")
                        .WithEnvironment("ASPNETCORE_HTTPS_PORTS", "5001")
-                       .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", "mysecurepass")
-                       .WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", "/https/devcert.pfx")
-                       .WithBindMount("./certs", "/https/", true)
+                       .AsHttp2Service()
+                       //.WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", "mysecurepass")
+                       //.WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", "/https/devcert.pfx")
+                       //.WithBindMount("./certs", "/https/", true)
                        .WithHttpsEndpoint(targetPort: 5001);
 
 var agentHostHttps = agentHost.GetEndpoint("https");

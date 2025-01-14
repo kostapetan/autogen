@@ -4,5 +4,5 @@ name: marketing-team
 services:  
   app:
     language: dotnet
-    project: .\Marketing.AppHost\Marketing.AppHost.csproj
+    project: ./Marketing.AppHost/Marketing.AppHost.csproj
     host: containerapp

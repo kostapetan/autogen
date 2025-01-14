@@ -52,7 +52,8 @@ public static class GrpcRuntimeHostingExtensions
             serverOptions.ListenAnyIP(5001, listenOptions =>
             {
                 listenOptions.Protocols = HttpProtocols.Http2;
-                listenOptions.UseHttps();
+                // TODO: make HTTPS configurable
+                //listenOptions.UseHttps(); 
             });
         });
 
