@@ -12,7 +12,8 @@ var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/ag
                        //.WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Password", "mysecurepass")
                        //.WithEnvironment("ASPNETCORE_Kestrel__Certificates__Default__Path", "/https/devcert.pfx")
                        //.WithBindMount("./certs", "/https/", true)
-                       .WithHttpsEndpoint(targetPort: 5001);
+                       .WithHttpsEndpoint(targetPort: 5001)
+                       .PublishAsAzureContainerApp((infra, ca) => { });
 
 var agentHostHttps = agentHost.GetEndpoint("https");
 
@@ -20,7 +21,10 @@ var backend = builder.AddProject<Projects.Marketing_Backend>("backend")
     .WithEnvironment("AGENT_HOST", $"{agentHostHttps.Property(EndpointProperty.Url)}")
     .WithEnvironment("OpenAI__Key", builder.Configuration["OpenAI:Key"])
     .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"])
-    .WaitFor(agentHost);
+    .AsHttp2Service()
+    .WithExternalHttpEndpoints()
+    .WaitFor(agentHost)
+    .PublishAsAzureContainerApp((infra, ca) => { }); ;
 
 builder.AddNpmApp("frontend", "../Marketing.Frontend", "dev")
     .WithReference(backend)

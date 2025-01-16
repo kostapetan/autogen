@@ -13,9 +13,9 @@ properties:
       dotnet:
         autoConfigureDataProtection: true
     ingress:
-      external: false
+      external: true
       targetPort: {{ targetPortOrDefault 8080 }}
-      transport: http
+      transport: http2
       allowInsecure: true
     registries:
       - server: {{ .Env.AZURE_CONTAINER_REGISTRY_ENDPOINT }}

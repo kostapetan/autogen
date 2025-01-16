@@ -6,3 +6,18 @@ services:
     language: dotnet
     project: ./Marketing.AppHost/Marketing.AppHost.csproj
     host: containerapp
+hooks:
+  predeploy:
+    windows:
+      shell: pwsh
+      run: 'echo "NEXT_PUBLIC_BACKEND_URI="https://backend."$env:AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN""" > ./Marketing.Frontend/.env.local'
+    posix:
+      shell: sh
+      run: 'echo NEXT_PUBLIC_BACKEND_URI=\"https://backend.$AZURE_CONTAINER_APPS_ENVIRONMENT_DEFAULT_DOMAIN\" > ./Marketing.Frontend/.env.local'    
+  postdeploy:
+    windows:
+      shell: pwsh
+      run: 'rm ./Marketing.Frontend/.env.local'
+    posix:
+      shell: sh
+      run: 'rm ./Marketing.Frontend/.env.local'

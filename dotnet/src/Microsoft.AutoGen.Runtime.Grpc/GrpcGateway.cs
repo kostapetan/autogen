@@ -37,7 +37,6 @@ public sealed class GrpcGateway : BackgroundService, IGateway
         _clusterClient = clusterClient;
         _reference = clusterClient.CreateObjectReference<IGateway>(this);
         _gatewayRegistry = clusterClient.GetGrain<IGrainRegistry>(0);
-
     }
     public async ValueTask<RpcResponse> InvokeRequest(RpcRequest request)
     {

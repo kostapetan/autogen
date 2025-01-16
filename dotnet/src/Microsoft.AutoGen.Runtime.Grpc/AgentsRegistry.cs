@@ -6,7 +6,7 @@ using Microsoft.AutoGen.Runtime.Grpc.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AutoGen.Runtime.Grpc;
-internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore")] IPersistentState<AgentsRegistryState> state, ILogger<AgentsRegistry> logger) : Grain, IGrainRegistry
+internal sealed class AgentsRegistry([PersistentState("state", "AgentsStore")] IPersistentState<AgentsRegistryState> state, ILogger<AgentsRegistry> logger) : Grain, IGrainRegistry
 {
     // TODO: use persistent state for some of these or (better) extend Orleans to implement some of this natively.
     private readonly Dictionary<IGateway, WorkerState> _workerStates = new();
