@@ -267,16 +267,18 @@ public sealed class GrpcGateway : BackgroundService, IGateway
             var targetAgentTypes = await registry.GetSubscribedAndHandlingAgents(evt.Source, evt.Type);
 
             var tasks = new List<Task>();
-            var connections = new HashSet<GrpcWorkerConnection>();
+            var targetConnections = new HashSet<GrpcWorkerConnection>();
 
-            foreach (var (key, connection) in _supportedAgentTypes)
+            foreach (var (key, connections) in _supportedAgentTypes)
             {
                 if (targetAgentTypes.Contains(key))
                 {
-                    connections.Add(connection[0]); // TODO: sample a random connection
+                    // if the connection is alive, add it to the set, if not remove the connection from the list
+                    var activeConnections = connections.Where(c => c.Completion?.IsCompleted == false).ToList();
+                    targetConnections.Add(activeConnections.First()); // TODO: sample a random connection
                 }
             }
-            foreach (var connection in connections)
+            foreach (var connection in targetConnections)
             {
                 tasks.Add(SendMessageAsync(connection, evt, default));
             }

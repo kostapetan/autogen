@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Program.cs
 
+using Azure.Provisioning;
+using Azure.Provisioning.AppContainers;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddAzureProvisioning();
 
-var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/agent-host","v1")
+var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/agent-host", "v1.1")
                        .WithEnvironment("ASPNETCORE_URLS", "https://+;http://+")
                        .WithEnvironment("ASPNETCORE_HTTPS_PORTS", "5001")
                        .AsHttp2Service()
@@ -21,10 +24,20 @@ var backend = builder.AddProject<Projects.Marketing_Backend>("backend")
     .WithEnvironment("AGENT_HOST", $"{agentHostHttps.Property(EndpointProperty.Url)}")
     .WithEnvironment("OpenAI__Key", builder.Configuration["OpenAI:Key"])
     .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"])
-    .AsHttp2Service()
     .WithExternalHttpEndpoints()
+    .WithReplicas(2)
     .WaitFor(agentHost)
-    .PublishAsAzureContainerApp((infra, ca) => { }); ;
+    .PublishAsAzureContainerApp((infra, ca) =>
+    {
+        ca.Configuration.Ingress.CorsPolicy = new ContainerAppCorsPolicy
+        {
+            AllowCredentials = true,
+            AllowedOrigins = new BicepList<string> { "https://*.azurecontainerapps.io" },
+            AllowedHeaders = new BicepList<string> { "*" },
+            AllowedMethods = new BicepList<string> { "*" }
+        };
+        ca.Configuration.Ingress.StickySessionsAffinity = StickySessionAffinity.Sticky;
+    });
 
 builder.AddNpmApp("frontend", "../Marketing.Frontend", "dev")
     .WithReference(backend)
