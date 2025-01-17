@@ -16,6 +16,7 @@
     <PackageVersion Include="Aspire.Hosting" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Azure" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Azure.AppContainers" Version="9.0.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.SignalR" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Python" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Testing" Version="9.0.0" />
     <PackageVersion Include="AspNetCore.Authentication.ApiKey" Version="8.0.1" />
@@ -50,6 +51,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.App" Version="8.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+    <PackageVersion Include="Microsoft.Azure.SignalR" Version="1.29.0" />
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.0" />
     <PackageVersion Include="Microsoft.Extensions.AI" Version="$(MicrosoftExtensionsAIVersion)" />
     <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="$(MicrosoftExtensionsAIVersion)" />

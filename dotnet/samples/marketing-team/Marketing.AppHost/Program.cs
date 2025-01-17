@@ -20,11 +20,16 @@ var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/ag
 
 var agentHostHttps = agentHost.GetEndpoint("https");
 
+var signalr = builder.ExecutionContext.IsPublishMode
+    ? builder.AddAzureSignalR("signalr")
+    : builder.AddConnectionString("signalr");
+
 var backend = builder.AddProject<Projects.Marketing_Backend>("backend")
     .WithEnvironment("AGENT_HOST", $"{agentHostHttps.Property(EndpointProperty.Url)}")
     .WithEnvironment("OpenAI__Key", builder.Configuration["OpenAI:Key"])
     .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"])
     .WithExternalHttpEndpoints()
+    .WithReference(signalr)
     .WithReplicas(2)
     .WaitFor(agentHost)
     .PublishAsAzureContainerApp((infra, ca) =>
@@ -37,6 +42,8 @@ var backend = builder.AddProject<Projects.Marketing_Backend>("backend")
             AllowedMethods = new BicepList<string> { "*" }
         };
         ca.Configuration.Ingress.StickySessionsAffinity = StickySessionAffinity.Sticky;
+        //ca.Configuration.Secrets.Add("OpenAI__Key", builder.Configuration["OpenAI:Key"]);
+
     });
 
 builder.AddNpmApp("frontend", "../Marketing.Frontend", "dev")

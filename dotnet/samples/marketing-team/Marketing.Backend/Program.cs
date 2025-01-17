@@ -18,7 +18,8 @@ builder.AddServiceDefaults();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+                .AddNamedAzureSignalR("signalr"); ;
 
 builder.Services.AddSingleton(
     new AzureOpenAIClient(
