@@ -28,7 +28,7 @@ builder.Services.AddSingleton(
     ));
 
 builder.Services.AddChatClient(s => s.GetRequiredService<AzureOpenAIClient>().AsChatClient("gpt-4o-mini"));
-                                
+builder.AddRedisClient(connectionName: "cache");
 
 builder.AddGrpcAgentWorker(builder.Configuration["AGENT_HOST"]!)
     .AddAgentHost()
@@ -50,10 +50,9 @@ if (builder.Environment.IsDevelopment())
         options.AddPolicy(AllowDebugOriginPolicy, builder =>
         {
             builder
-            .WithOrigins("http://localhost:3000", "http://localhost:3001") // client urls
+            .AllowAnyOrigin()// client urls
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
         });
     });
 }

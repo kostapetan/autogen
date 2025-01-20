@@ -46,12 +46,15 @@ public static class GrpcRuntimeHostingExtensions
 
         builder.WebHost.ConfigureKestrel(serverOptions =>
         {
+            serverOptions.Limits.Http2.KeepAlivePingDelay = TimeSpan.FromSeconds(20); // Match the client's KeepAlivePingDelay
+            serverOptions.Limits.Http2.KeepAlivePingTimeout = TimeSpan.FromSeconds(10); // Match the client's KeepAlivePingTimeout
+
             // TODO: make port configurable
             serverOptions.ListenAnyIP(5001, listenOptions =>
             {
                 listenOptions.Protocols = HttpProtocols.Http2;
                 // TODO: make HTTPS configurable
-               // listenOptions.UseHttps(); 
+                //listenOptions.UseHttps(); 
             });
         });
 

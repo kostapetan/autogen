@@ -4,10 +4,11 @@
 using Marketing.Shared;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AutoGen.Core;
+using StackExchange.Redis;
 
 namespace Marketing.Backend.Hubs;
 
-public class ArticleHub(Client client) : Hub<IArticleHub>
+public class ArticleHub(Client client, IConnectionMultiplexer connection) : Hub<IArticleHub>
 {
     public override async Task OnConnectedAsync()
     {
@@ -16,7 +17,8 @@ public class ArticleHub(Client client) : Hub<IArticleHub>
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        SignalRConnectionsDB.ConnectionIdByUser.TryRemove(Context.ConnectionId, out _);
+        var db = connection.GetDatabase();
+        await db.KeyDeleteAsync(Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -40,21 +42,9 @@ public class ArticleHub(Client client) : Hub<IArticleHub>
         ArgumentNullException.ThrowIfNull(userId);
         ArgumentNullException.ThrowIfNull(client);
 
-        var frontEndMessage = new FrontEndMessage()
-        {
-            UserId = userId,
-            Message = "Connected to agents",
-            Agent = AgentTypes.Chat.ToString()
-        };
-
-        SignalRConnectionsDB.ConnectionIdByUser.AddOrUpdate(userId, Context.ConnectionId, (key, oldValue) => Context.ConnectionId);
-
-        // Notify the agents that a new user got connected.
-        var data = new Dictionary<string, string>
-        {
-            ["UserId"] = frontEndMessage.UserId,
-            ["userMessage"] = frontEndMessage.Message,
-        };
+        var db = connection.GetDatabase();
+        await db.StringSetAsync(userId, Context.ConnectionId);
+        
         var evt = new UserConnected { UserId = userId };
         await client.PublishEventAsync(evt, topic: Consts.TopicName, key: userId);
     }

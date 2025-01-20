@@ -8,7 +8,8 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddAzureProvisioning();
 
-var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/agent-host", "v1.1")
+var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/agent-host", "v1.3")
+                       //.AddContainer("agent-host", "autogen/agent-host", "latest")
                        .WithEnvironment("ASPNETCORE_URLS", "https://+;http://+")
                        .WithEnvironment("ASPNETCORE_HTTPS_PORTS", "5001")
                        .AsHttp2Service()
@@ -20,6 +21,8 @@ var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/ag
 
 var agentHostHttps = agentHost.GetEndpoint("https");
 
+var cache = builder.AddRedis("cache");
+
 var signalr = builder.ExecutionContext.IsPublishMode
     ? builder.AddAzureSignalR("signalr")
     : builder.AddConnectionString("signalr");
@@ -30,6 +33,7 @@ var backend = builder.AddProject<Projects.Marketing_Backend>("backend")
     .WithEnvironment("OpenAI__Endpoint", builder.Configuration["OpenAI:Endpoint"])
     .WithExternalHttpEndpoints()
     .WithReference(signalr)
+    .WithReference(cache)
     .WithReplicas(2)
     .WaitFor(agentHost)
     .PublishAsAzureContainerApp((infra, ca) =>
