@@ -2,9 +2,9 @@
 // Program.cs
 
 using Azure.Identity;
-using DevTeam.Options;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.AI;
 using Microsoft.AutoGen.Core;
 using Octokit.Webhooks;
 using Octokit.Webhooks.AspNetCore;
@@ -13,6 +13,11 @@ using DevTeam.Backend.Agents;
 using DevTeam.Backend.Agents.ProductManager;
 using DevTeam.Backend.Agents.DeveloperLead;
 using DevTeam.Backend.Agents.Developer;
+using DevTeam.Backend.Options;
+using DevTeam.ServiceDefaults;
+using Microsoft.AutoGen.Core.Grpc;
+using Azure.AI.OpenAI;
+using System.ClientModel;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +40,14 @@ builder.Services.AddSingleton<WebhookEventProcessor, GithubWebHookProcessor>();
 builder.Services.AddSingleton<GithubAuthService>();
 builder.Services.AddSingleton<IManageAzure, AzureService>();
 builder.Services.AddSingleton<IManageGithub, GithubService>();
+
+builder.Services.AddSingleton(
+    new AzureOpenAIClient(
+        new Uri(builder.Configuration["OpenAI:Endpoint"]!),
+        new ApiKeyCredential(builder.Configuration["OpenAI:Key"]!)
+    ));
+
+builder.Services.AddChatClient(s => s.GetRequiredService<AzureOpenAIClient>().AsChatClient("gpt-4o-mini"));
 
 builder.Services.AddTransient(s =>
 {

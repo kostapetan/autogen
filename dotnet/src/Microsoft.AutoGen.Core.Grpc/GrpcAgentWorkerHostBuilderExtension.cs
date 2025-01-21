@@ -7,7 +7,7 @@ using Microsoft.AutoGen.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.AutoGen.Core;
+namespace Microsoft.AutoGen.Core.Grpc;
 
 public static class GrpcAgentWorkerHostBuilderExtensions
 {
@@ -22,10 +22,10 @@ public static class GrpcAgentWorkerHostBuilderExtensions
 
                 channelOptions.HttpHandler = new SocketsHttpHandler
                 {
-                    EnableMultipleHttp2Connections = false,
+                    EnableMultipleHttp2Connections = true,
                     KeepAlivePingDelay = TimeSpan.FromSeconds(20),
                     KeepAlivePingTimeout = TimeSpan.FromSeconds(10),
-                    KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests
+                    KeepAlivePingPolicy = HttpKeepAlivePingPolicy.Always
                 };
 
                 var methodConfig = new MethodConfig

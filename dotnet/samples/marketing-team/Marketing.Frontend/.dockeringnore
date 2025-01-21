@@ -1,0 +1,4 @@
+# Front end needs the environment variables at build time
+!.env
+
+node_modules*

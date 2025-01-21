@@ -9,7 +9,7 @@ using Azure.ResourceManager.ContainerInstance;
 using Azure.ResourceManager.ContainerInstance.Models;
 using Azure.ResourceManager.Resources;
 using Azure.Storage.Files.Shares;
-using DevTeam.Options;
+using DevTeam.Backend.Options;
 using Microsoft.Extensions.Options;
 
 namespace DevTeam.Backend.Services;

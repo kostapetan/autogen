@@ -5,7 +5,6 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AutoGen.Runtime.Grpc.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -18,7 +17,6 @@ public static class GrpcRuntimeHostingExtensions
     internal static WebApplicationBuilder AddOrleans(this WebApplicationBuilder builder, bool inMemory = false)
     {
         builder.Services.AddSerializer(serializer => serializer.AddProtobufSerializer());
-        builder.Services.AddSingleton<IRegistry, AgentsRegistry>();
 
         // Ensure Orleans is added before the hosted service to guarantee that it starts first.
         //TODO: make all of this configurable
@@ -30,7 +28,7 @@ public static class GrpcRuntimeHostingExtensions
                 siloBuilder.UseLocalhostClustering()
                   .AddMemoryStreams("StreamProvider")
                   .AddMemoryGrainStorage("PubSubStore")
-                  .AddMemoryGrainStorage("AgentStateStore");
+                  .AddMemoryGrainStorage("AgentsStore");
             }
 
             siloBuilder.UseInMemoryReminderService();
@@ -48,11 +46,15 @@ public static class GrpcRuntimeHostingExtensions
 
         builder.WebHost.ConfigureKestrel(serverOptions =>
         {
+            serverOptions.Limits.Http2.KeepAlivePingDelay = TimeSpan.FromSeconds(20); // Match the client's KeepAlivePingDelay
+            serverOptions.Limits.Http2.KeepAlivePingTimeout = TimeSpan.FromSeconds(10); // Match the client's KeepAlivePingTimeout
+
             // TODO: make port configurable
             serverOptions.ListenAnyIP(5001, listenOptions =>
             {
                 listenOptions.Protocols = HttpProtocols.Http2;
-                listenOptions.UseHttps();
+                // TODO: make HTTPS configurable
+                //listenOptions.UseHttps(); 
             });
         });
 

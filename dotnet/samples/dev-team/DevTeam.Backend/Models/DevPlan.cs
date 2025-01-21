@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // DevPlan.cs
 
-namespace DevTeam;
+namespace DevTeam.Backend.Models;
 public class DevLeadPlan
 {
     public required List<StepDescription> Steps { get; set; }

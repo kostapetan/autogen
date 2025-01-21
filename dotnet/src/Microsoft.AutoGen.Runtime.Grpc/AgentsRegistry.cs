@@ -3,9 +3,10 @@
 
 using Microsoft.AutoGen.Contracts;
 using Microsoft.AutoGen.Runtime.Grpc.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AutoGen.Runtime.Grpc;
-internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore")] IPersistentState<AgentsRegistryState> state) : Grain, IGrainRegistry
+internal sealed class AgentsRegistry([PersistentState("state", "AgentsStore")] IPersistentState<AgentsRegistryState> state, ILogger<AgentsRegistry> logger) : Grain, IGrainRegistry
 {
     // TODO: use persistent state for some of these or (better) extend Orleans to implement some of this natively.
     private readonly Dictionary<IGateway, WorkerState> _workerStates = new();
@@ -70,6 +71,9 @@ internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore"
     }
     public async ValueTask RegisterAgentType(RegisterAgentTypeRequest registration, IGateway worker)
     {
+        logger.LogInformation($"Registry for agent type {registration.Type}.");
+        logger.LogInformation($"Registry events {string.Join(",", registration.Events)}");
+        logger.LogInformation($"Registry topics {string.Join(",", registration.Topics)}");
         if (!_supportedAgentTypes.TryGetValue(registration.Type, out var supportedAgentTypes))
         {
             supportedAgentTypes = _supportedAgentTypes[registration.Type] = [];
@@ -108,7 +112,8 @@ internal sealed class AgentsRegistry([PersistentState("state", "AgentStateStore"
 
             eventSet.Add(registration.Type);
         }
-        await state.WriteStateAsync().ConfigureAwait(false);
+        await state.WriteStateAsync();
+        logger.LogInformation($"Successfully stored {registration.Type}.");
     }
     public ValueTask AddWorker(IGateway worker)
     {

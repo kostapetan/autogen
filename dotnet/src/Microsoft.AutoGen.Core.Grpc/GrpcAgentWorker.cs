@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.AutoGen.Core;
+namespace Microsoft.AutoGen.Core.Grpc;
 
 public sealed class GrpcAgentWorker(
     AgentRpc.AgentRpcClient client,
@@ -41,6 +41,7 @@ public sealed class GrpcAgentWorker(
     private readonly ILogger<GrpcAgentWorker> _logger = logger;
     private readonly DistributedContextPropagator _distributedContextPropagator = distributedContextPropagator;
     private readonly CancellationTokenSource _shutdownCts = CancellationTokenSource.CreateLinkedTokenSource(hostApplicationLifetime.ApplicationStopping);
+    private readonly TaskCompletionSource _channelOpen = new();
     private AsyncDuplexStreamingCall<Message, Message>? _channel;
     private Task? _readTask;
     private Task? _writeTask;
@@ -52,7 +53,7 @@ public sealed class GrpcAgentWorker(
     }
     private async Task RunReadPump()
     {
-        var channel = GetChannel();
+        var channel = await GetChannel();
         while (!_shutdownCts.Token.IsCancellationRequested)
         {
             try
@@ -103,6 +104,11 @@ public sealed class GrpcAgentWorker(
                 // Time to shut down.
                 break;
             }
+            catch(RpcException exception) when (exception.Status.Detail =="stream timeout")
+            {
+                _logger.LogError(exception, "Reset rpc stream");
+                channel = RecreateChannel(channel);
+            }
             catch (Exception ex) when (!_shutdownCts.IsCancellationRequested)
             {
                 _logger.LogError(ex, "Error reading from channel.");
@@ -117,7 +123,7 @@ public sealed class GrpcAgentWorker(
     }
     private async Task RunWritePump()
     {
-        var channel = GetChannel();
+        var channel = await GetChannel();
         var outboundMessages = _outboundMessagesChannel.Reader;
         while (!_shutdownCts.IsCancellationRequested)
         {
@@ -259,13 +265,13 @@ public sealed class GrpcAgentWorker(
         var tcs = new TaskCompletionSource();
         await _outboundMessagesChannel.Writer.WriteAsync((message, tcs), cancellationToken).ConfigureAwait(false);
     }
-    private AsyncDuplexStreamingCall<Message, Message> GetChannel()
+    private async Task<AsyncDuplexStreamingCall<Message, Message>> GetChannel()
     {
         if (_channel is { } channel)
         {
             return channel;
         }
-
+        AsyncDuplexStreamingCall<Message, Message> chn;
         lock (_channelLock)
         {
             if (_channel is not null)
@@ -273,8 +279,11 @@ public sealed class GrpcAgentWorker(
                 return _channel;
             }
 
-            return RecreateChannel(null);
+            chn = RecreateChannel(null);
         }
+
+        await RegisterAgents(CancellationToken.None).ConfigureAwait(false);
+        return chn;
     }
 
     private AsyncDuplexStreamingCall<Message, Message> RecreateChannel(AsyncDuplexStreamingCall<Message, Message>? channel)
@@ -287,27 +296,21 @@ public sealed class GrpcAgentWorker(
                 {
                     _channel?.Dispose();
                     _channel = _client.OpenChannel(cancellationToken: _shutdownCts.Token);
+                    // TODO: When we recreate the channel, we need to send the metadata again (via register agent)
+                    _channelOpen.TrySetResult();
                 }
             }
         }
-
+        _logger.LogInformation("Channel is open");
         return _channel;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _channel = GetChannel();
+        _channel = await GetChannel();
         StartCore();
-
-        var tasks = new List<Task>(_agentTypes.Count);
-        foreach (var (typeName, type) in _configuredAgentTypes)
-        {
-            tasks.Add(RegisterAgentTypeAsync(typeName, type, cancellationToken).AsTask());
-        }
-
-        await Task.WhenAll(tasks).ConfigureAwait(true);
-
-        void StartCore()
+       
+        async void StartCore()
         {
             var didSuppress = false;
             if (!ExecutionContext.IsFlowSuppressed())
@@ -320,14 +323,24 @@ public sealed class GrpcAgentWorker(
             {
                 _readTask = Task.Run(RunReadPump, CancellationToken.None);
                 _writeTask = Task.Run(RunWritePump, CancellationToken.None);
+                await RegisterAgents(CancellationToken.None).ConfigureAwait(false);
             }
             finally
             {
-                if (didSuppress)
+                if (didSuppress && ExecutionContext.IsFlowSuppressed())
                 {
                     ExecutionContext.RestoreFlow();
                 }
             }
+        }
+    }
+
+    public async ValueTask RegisterAgents(CancellationToken cancellationToken)
+    {
+        await _channelOpen.Task;
+        foreach (var (typeName, type) in _configuredAgentTypes)
+        {
+            await RegisterAgentTypeAsync(typeName, type, cancellationToken);
         }
     }
 
@@ -365,15 +378,7 @@ public sealed class GrpcAgentWorker(
     public async ValueTask<AgentState> ReadAsync(AgentId agentId, CancellationToken cancellationToken = default)
     {
         var response = await _client.GetStateAsync(agentId).ConfigureAwait(true);
-        //        if (response.Success && response.AgentState.AgentId is not null) - why is success always false?
-        if (response.AgentState.AgentId is not null)
-        {
-            return response.AgentState;
-        }
-        else
-        {
-            throw new KeyNotFoundException($"Failed to read AgentState for {agentId}.");
-        }
+        return response.AgentState;
     }
 }
 

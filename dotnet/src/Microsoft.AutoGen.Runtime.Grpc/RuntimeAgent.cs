@@ -6,7 +6,7 @@ using Microsoft.AutoGen.Runtime.Grpc.Abstractions;
 
 namespace Microsoft.AutoGen.Runtime.Grpc;
 
-internal sealed class RuntimeAgent([PersistentState("state", "AgentStateStore")] IPersistentState<Contracts.AgentState> state) : Grain, IAgentGrain
+internal sealed class RuntimeAgent([PersistentState("state", "AgentsStore")] IPersistentState<Contracts.AgentState> state) : Grain, IAgentGrain
 {
     /// <inheritdoc />
     public async ValueTask<string> WriteStateAsync(Contracts.AgentState newState, string eTag/*, CancellationToken cancellationToken = default*/)
