@@ -262,7 +262,6 @@ public sealed class GrpcGateway : BackgroundService, IGateway
     {
         try
         {
-
             var registry = _clusterClient.GetGrain<IGrainRegistry>(0);
             var targetAgentTypes = await registry.GetSubscribedAndHandlingAgents(evt.Source, evt.Type);
 

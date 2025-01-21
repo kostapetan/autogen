@@ -8,7 +8,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddAzureProvisioning();
 
-var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/agent-host", "v1.4")
+var agentHost = builder.AddContainer("agent-host", "kpetan.azurecr.io/autogen/agent-host", "v1.5")
                        //.AddContainer("agent-host", "autogen/agent-host", "latest")
                        .WithEnvironment("ASPNETCORE_URLS", "https://+;http://+")
                        .WithEnvironment("ASPNETCORE_HTTPS_PORTS", "5001")

@@ -53,7 +53,7 @@ public sealed class GrpcAgentWorker(
     }
     private async Task RunReadPump()
     {
-        var channel = GetChannel();
+        var channel = await GetChannel();
         while (!_shutdownCts.Token.IsCancellationRequested)
         {
             try
@@ -123,7 +123,7 @@ public sealed class GrpcAgentWorker(
     }
     private async Task RunWritePump()
     {
-        var channel = GetChannel();
+        var channel = await GetChannel();
         var outboundMessages = _outboundMessagesChannel.Reader;
         while (!_shutdownCts.IsCancellationRequested)
         {
@@ -265,13 +265,13 @@ public sealed class GrpcAgentWorker(
         var tcs = new TaskCompletionSource();
         await _outboundMessagesChannel.Writer.WriteAsync((message, tcs), cancellationToken).ConfigureAwait(false);
     }
-    private AsyncDuplexStreamingCall<Message, Message> GetChannel()
+    private async Task<AsyncDuplexStreamingCall<Message, Message>> GetChannel()
     {
         if (_channel is { } channel)
         {
             return channel;
         }
-
+        AsyncDuplexStreamingCall<Message, Message> chn;
         lock (_channelLock)
         {
             if (_channel is not null)
@@ -279,8 +279,11 @@ public sealed class GrpcAgentWorker(
                 return _channel;
             }
 
-            return RecreateChannel(null);
+            chn = RecreateChannel(null);
         }
+
+        await RegisterAgents(CancellationToken.None).ConfigureAwait(false);
+        return chn;
     }
 
     private AsyncDuplexStreamingCall<Message, Message> RecreateChannel(AsyncDuplexStreamingCall<Message, Message>? channel)
@@ -293,6 +296,7 @@ public sealed class GrpcAgentWorker(
                 {
                     _channel?.Dispose();
                     _channel = _client.OpenChannel(cancellationToken: _shutdownCts.Token);
+                    // TODO: When we recreate the channel, we need to send the metadata again (via register agent)
                     _channelOpen.TrySetResult();
                 }
             }
@@ -303,7 +307,7 @@ public sealed class GrpcAgentWorker(
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _channel = GetChannel();
+        _channel = await GetChannel();
         StartCore();
        
         async void StartCore()
