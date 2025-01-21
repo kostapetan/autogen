@@ -104,6 +104,11 @@ public sealed class GrpcAgentWorker(
                 // Time to shut down.
                 break;
             }
+            catch(RpcException exception) when (exception.Status.Detail =="stream timeout")
+            {
+                _logger.LogError(exception, "Reset rpc stream");
+                channel = RecreateChannel(channel);
+            }
             catch (Exception ex) when (!_shutdownCts.IsCancellationRequested)
             {
                 _logger.LogError(ex, "Error reading from channel.");
