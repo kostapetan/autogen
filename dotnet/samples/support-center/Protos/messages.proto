@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package supportcenter;
+
+option csharp_namespace = "SupportCenter.Shared";
+
+/* Agents */
+
+// User
+message UserChatInput {
+  string user_id = 1;
+  string message = 2;
+}
+
+message UserConnected {
+  string user_id = 1;
+}
+
+message UserNewConversation {
+    string user_id = 1;
+}
+
+// Dispatcher
+message DispatcherNotification {
+    string user_id = 1;
+    string message = 2;
+}
+
+// CustomerInfo
+message CustomerInfoRequest {
+    string user_id = 1;
+    string conversation_id = 2;
+    string message = 3;
+}
+
+message CustomerInfoResponse {
+    string user_id = 1;
+    string message = 2;
+}
+
+message CustomerInfoNotification {
+    string user_id = 1;
+    string message = 2;
+}
+
+// Invoice
+message InvoiceRequest {
+    string user_id = 1;
+    string message = 2;
+}
+
+message InvoiceResponse {
+    string user_id = 1;
+    string message = 2;
+}
+
+message InvoiceNotification {
+    string user_id = 1;
+    string message = 2;
+}
+
+// Discount
+message DiscountRequest {
+    string user_id = 1;
+    string message = 2;
+}
+
+message DiscountResponse {
+    string user_id = 1;
+    string message = 2;
+}
+
+// QnA
+message QnARequest {
+  string user_id = 1;
+  string message = 2;
+}
+
+message QnAResponse {
+  string user_id = 1;
+  string message = 2;
+}

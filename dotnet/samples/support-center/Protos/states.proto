@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package supportcenter;
+
+option csharp_namespace = "SupportCenter.Shared";
+
+/* Customer Info */
+message CustomerInfoState {
+    CustomerInfoInternal info = 1;
+}
+message CustomerInfoInternal {
+    string name = 1;
+    string email = 2;
+    string phone = 3;
+    string address = 4;
+}
+
+/* QnA */
+message QnAState {
+    string user_id = 1;
+}
+
+/* Invoice */
+message InvoiceState {
+    string user_id = 1;
+    string invoice_id = 2;
+}
+
+/* Discount */
+message DiscountState {
+    string user_id = 1;
+    string discount_code = 2;
+}
+
+/* Dispathcer */
+message DispatcherState {
+    string user_id = 1;
+    string message = 2;
+}
