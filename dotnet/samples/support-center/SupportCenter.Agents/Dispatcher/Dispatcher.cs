@@ -3,8 +3,6 @@
 
 using System.Reflection;
 using Google.Protobuf;
-using Microsoft.AutoGen.Agents;
-using Microsoft.AutoGen.Contracts;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,10 +10,11 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using SupportCenter.Agents.Extensions;
 using SupportCenter.Shared;
+using SupportCenter.Shared.SemanticKernel;
 
 namespace SupportCenter.Agents.Dispatcher;
 
-[TopicSubscription("default")]
+[TopicSubscription(Constants.TopicName)]
 [DispatcherChoice("QnA", "The customer is asking a question related to internal Contoso knowledge base.", typeof(QnARequest))]
 [DispatcherChoice("Discount", "The customer is asking for a discount about a product or service.", typeof(DiscountRequest))]
 [DispatcherChoice("Invoice", "The customer is asking for an invoice.", typeof(InvoiceRequest))]
@@ -23,12 +22,11 @@ namespace SupportCenter.Agents.Dispatcher;
 //[DispatcherChoice("Conversation", "The customer is having a generic conversation. When the request is generic or can't be classified differently, use this choice.", typeof(ConversationRequest)]
 
 public class Dispatcher(
-    IAgentWorker worker,
     Kernel kernel,
     ISemanticTextMemory memory,
-    [FromKeyedServices("EventTypes")] EventTypes typeRegistry,
+    [FromKeyedServices("AgentsMetadata")] AgentsMetadata typeRegistry,
     ILogger<Dispatcher> logger)
-    : SKAiAgent<DispatcherState>(worker, memory, kernel, typeRegistry),
+    : SKAiAgent<DispatcherState>(typeRegistry, memory, kernel, logger),
     IHandle<UserNewConversation>,
     IHandle<UserConnected>,
     IHandle<UserChatInput>,
@@ -37,19 +35,19 @@ public class Dispatcher(
     IHandle<InvoiceResponse>,
     IHandle<CustomerInfoResponse>
 {
-    public async Task Handle(UserNewConversation item)
+    public async Task Handle(UserNewConversation item, CancellationToken cancellationToken)
     {
         logger.LogInformation($"[{nameof(Dispatcher)}] Event {nameof(UserNewConversation)}");
         // The user started a new conversation.
         _state.History.Clear();
     }
 
-    public Task Handle(QnAResponse item)
+    public Task Handle(QnAResponse item, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public async Task Handle(UserChatInput item)
+    public async Task Handle(UserChatInput item, CancellationToken cancellationToken)
     {
         // TODO: check if id is needed in messages
         var (_, userId, message) = item.GetAgentData();
@@ -60,27 +58,27 @@ public class Dispatcher(
             UserId = userId,
             Message = $"The user request has been dispatched to the '{intent}' agent."
         };
-        await PublishEventAsync(notif.ToCloudEvent(AgentId.ToString())).ConfigureAwait(false);
+        await PublishEventAsync(@event: notif, topic: Constants.TopicName).ConfigureAwait(false);
 
         await SendDispatcherEvent(userId, intent, message).ConfigureAwait(false);
     }
 
-    public Task Handle(UserConnected item)
+    public Task Handle(UserConnected item, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task Handle(InvoiceResponse item)
+    public Task Handle(InvoiceResponse item, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task Handle(DiscountResponse item)
+    public Task Handle(DiscountResponse item, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public Task Handle(CustomerInfoResponse item)
+    public Task Handle(CustomerInfoResponse item, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
@@ -136,7 +134,7 @@ public class Dispatcher(
         var messageProperty = eventType.GetProperty("Message") ?? eventType.GetProperty("message");
         messageProperty?.SetValue(eventMessage, message);
 
-        await PublishEventAsync(eventMessage.ToCloudEvent(AgentId.ToString())).ConfigureAwait(false);
+        await PublishEventAsync(@event: eventMessage, topic: Constants.TopicName).ConfigureAwait(false);
         _logger.LogInformation("Dispatched event '{EventType}' for intent '{Intent}' to user '{UserId}'.", dispatcherChoice.DispatchToEvent.Name, intent, userId);
     }
 }

@@ -2,22 +2,25 @@
 // Discount.cs
 
 using global::SupportCenter.Shared;
-using Microsoft.AutoGen.Agents;
-using Microsoft.AutoGen.Contracts;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
+using SupportCenter.Shared.SemanticKernel;
 
 namespace SupportCenter.Agents.Discount;
-[TopicSubscription("default")]
-public class Discount(IAgentWorker worker, Kernel kernel, ISemanticTextMemory memory, [FromKeyedServices("EventTypes")] EventTypes typeRegistry, ILogger<Discount> logger)
-    : SKAiAgent<DiscountState>(worker, memory, kernel, typeRegistry),
+[TopicSubscription(Constants.TopicName)]
+public class Discount(
+   [FromKeyedServices("AgentsMetadata")] AgentsMetadata agentsMetadata,
+    ISemanticTextMemory memory,
+    Kernel kernel,
+    ILogger<Discount> logger)
+    : SKAiAgent<CustomerInfoState>(agentsMetadata, memory, kernel, logger),
     IHandle<UserNewConversation>
 {
 
-    public async Task Handle(UserNewConversation item)
+    public async Task Handle(UserNewConversation item, CancellationToken cancellationToken)
     {
         logger.LogInformation($"[{nameof(Discount)}] Event {nameof(UserNewConversation)}");
         // The user started a new conversation.

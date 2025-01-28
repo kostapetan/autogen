@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // CustomerInfo.cs
 
-using global::SupportCenter.Shared;
-using Microsoft.AutoGen.Agents;
-using Microsoft.AutoGen.Contracts;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,26 +8,32 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Planning;
 using SupportCenter.Agents.Extensions;
+using SupportCenter.Shared;
+using SupportCenter.Shared.SemanticKernel;
 
 namespace SupportCenter.Agents.CustomerInfo;
-[TopicSubscription("default")]
-public class CustomerInfo(IAgentWorker worker, Kernel kernel, ISemanticTextMemory memory, [FromKeyedServices("EventTypes")] EventTypes typeRegistry, ILogger<CustomerInfo> logger)
-    : SKAiAgent<CustomerInfoState>(worker, memory, kernel, typeRegistry),
+[TopicSubscription(Constants.TopicName)]
+public class CustomerInfo(
+    [FromKeyedServices("AgentsMetadata")] AgentsMetadata agentsMetadata,
+    ISemanticTextMemory memory,
+    Kernel kernel,
+    ILogger<CustomerInfo> logger)
+    : SKAiAgent<CustomerInfoState>(agentsMetadata, memory, kernel, logger),
     IHandle<CustomerInfoRequest>,
     IHandle<UserNewConversation>
 {
-    public async Task Handle(CustomerInfoRequest item)
+    public async Task Handle(CustomerInfoRequest item, CancellationToken cancellationToken)
     {
         var (id, userId, message) = item.GetAgentData();
 
         logger.LogInformation("[{Agent}]:[{EventType}]:[{EventData}]", nameof(CustomerInfo), typeof(CustomerInfoRequest), item);
 
-        var notif = new CustomerInfoNotification
+        var notification = new CustomerInfoNotification
         {
             UserId = userId,
             Message = "I'm working on the user's request..."
         };
-        await PublishEventAsync(notif.ToCloudEvent(AgentId.ToString())).ConfigureAwait(false);
+        await PublishEventAsync(@event: notification, topic: Constants.TopicName).ConfigureAwait(false);
 
         // Get the customer info via the planners.
         var prompt = CustomerInfoPrompts.GetCustomerInfo
@@ -52,10 +55,10 @@ public class CustomerInfo(IAgentWorker worker, Kernel kernel, ISemanticTextMemor
             UserId = userId,
             Message = result.FinalAnswer
         };
-        await PublishEventAsync(response.ToCloudEvent(AgentId.ToString())).ConfigureAwait(false);
+        await PublishEventAsync(@event: response, topic: Constants.TopicName).ConfigureAwait(false);
     }
 
-    public async Task Handle(UserNewConversation item)
+    public async Task Handle(UserNewConversation item, CancellationToken cancellationToken)
     {
         // The user started a new conversation.
         _state.History.Clear();

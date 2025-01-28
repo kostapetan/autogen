@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AutoGen.Runtime.G
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Autogen.AgentHost", "..\..\src\Microsoft.Autogen.AgentHost\Microsoft.Autogen.AgentHost.csproj", "{08B121B2-BE45-9493-9EBE-5301919309F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AutoGen.Contracts", "..\..\src\Microsoft.AutoGen.Contracts\Microsoft.AutoGen.Contracts.csproj", "{1EEC8CCD-1E60-95D5-C48F-65F06D3EE408}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AutoGen.Core.Grpc", "..\..\src\Microsoft.AutoGen.Core.Grpc\Microsoft.AutoGen.Core.Grpc.csproj", "{60B8FD8F-0CA8-277B-C9C0-6DE583FBCDAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +62,14 @@ Global
 		{08B121B2-BE45-9493-9EBE-5301919309F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08B121B2-BE45-9493-9EBE-5301919309F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08B121B2-BE45-9493-9EBE-5301919309F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EEC8CCD-1E60-95D5-C48F-65F06D3EE408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EEC8CCD-1E60-95D5-C48F-65F06D3EE408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EEC8CCD-1E60-95D5-C48F-65F06D3EE408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EEC8CCD-1E60-95D5-C48F-65F06D3EE408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60B8FD8F-0CA8-277B-C9C0-6DE583FBCDAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60B8FD8F-0CA8-277B-C9C0-6DE583FBCDAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60B8FD8F-0CA8-277B-C9C0-6DE583FBCDAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60B8FD8F-0CA8-277B-C9C0-6DE583FBCDAE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +78,8 @@ Global
 		{E23A5743-07F3-29D5-4DAE-39CF3FC59467} = {3A7E9FCC-5148-4073-9BEE-0946E5537F01}
 		{7D760597-A90E-FE21-E943-DBE63CE69CEA} = {3A7E9FCC-5148-4073-9BEE-0946E5537F01}
 		{08B121B2-BE45-9493-9EBE-5301919309F8} = {3A7E9FCC-5148-4073-9BEE-0946E5537F01}
+		{1EEC8CCD-1E60-95D5-C48F-65F06D3EE408} = {3A7E9FCC-5148-4073-9BEE-0946E5537F01}
+		{60B8FD8F-0CA8-277B-C9C0-6DE583FBCDAE} = {3A7E9FCC-5148-4073-9BEE-0946E5537F01}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {64156B06-F14F-46DC-92CB-89438369403E}

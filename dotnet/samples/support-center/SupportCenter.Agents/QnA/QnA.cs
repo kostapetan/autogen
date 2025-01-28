@@ -1,23 +1,25 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // QnA.cs
 
-using Microsoft.AutoGen.Agents;
-using Microsoft.AutoGen.Contracts;
 using Microsoft.AutoGen.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Memory;
 using SupportCenter.Shared;
+using SupportCenter.Shared.SemanticKernel;
 
 namespace SupportCenter.Agents.QnA;
 
-[TopicSubscription("default")]
-public class QnA(IAgentWorker worker, Kernel kernel, ISemanticTextMemory memory, [FromKeyedServices("EventTypes")] EventTypes typeRegistry, ILogger<QnA> logger)
-    : SKAiAgent<QnAState>(worker, memory, kernel, typeRegistry),
+[TopicSubscription(Constants.TopicName)]
+public class QnA(
+    [FromKeyedServices("AgentsMetadata")] AgentsMetadata agentsMetadata,
+    ISemanticTextMemory memory,
+    Kernel kernel,
+    ILogger<QnA> logger) : SKAiAgent<QnAState>(agentsMetadata, memory, kernel, logger),
     IHandle<QnARequest>
 {
-    public async Task Handle(QnARequest item)
+    public async Task Handle(QnARequest item, CancellationToken cancellationToken)
     {
         logger.LogInformation($"[{nameof(QnA)}] Event {nameof(QnARequest)}. Text: {{Text}}", item.Message);
 
@@ -28,17 +30,17 @@ public class QnA(IAgentWorker worker, Kernel kernel, ISemanticTextMemory memory,
             return;
         }
 
-        await SendQnAResponse(answer, item.UserId);
+        await SendQnAResponse(answer, item.UserId).ConfigureAwait(false);
     }
 
     private async Task SendQnAResponse(string message, string userId)
     {
-        var qnaresponse = new QnAResponse
+        var qna = new QnAResponse
         {
             Message = message,
             UserId = userId
-        }.ToCloudEvent(AgentId.Key);
+        };
 
-        await PublishEventAsync(qnaresponse);
+        await PublishEventAsync(@event: qna, topic: Constants.TopicName).ConfigureAwait(false);
     }
 }

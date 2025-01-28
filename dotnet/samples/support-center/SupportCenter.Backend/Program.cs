@@ -11,6 +11,8 @@ using SupportCenter.Agents.SignalR;
 using SupportCenter.ServiceDefaults;
 using SupportCenter.Shared.Extensions;
 using SupportCenter.Shared.Hubs;
+using Microsoft.AutoGen.Core;
+using Microsoft.AutoGen.Core.Grpc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +24,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 //.AddNamedAzureSignalR("signalr"); ;
 
-builder.AddAgentWorker(builder.Configuration["AGENT_HOST"]!)
+builder.AddGrpcAgentWorker(builder.Configuration["AGENT_HOST"]!)
     .AddAgent<Dispatcher>("dispatcher")
     .AddAgent<CustomerInfo>("customerInfo")
     .AddAgent<Discount>("discount")

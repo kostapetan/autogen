@@ -12,6 +12,7 @@
       <IsAspireProjectResource>false</IsAspireProjectResource>
     </ProjectReference>
     <ProjectReference Include="..\SupportCenter.Shared\SupportCenter.Shared.csproj" />
+    <ProjectReference Include="..\..\..\src\Microsoft.AutoGen.Core.Grpc\Microsoft.AutoGen.Core.Grpc.csproj" />
   </ItemGroup>
 
   <ItemGroup>
