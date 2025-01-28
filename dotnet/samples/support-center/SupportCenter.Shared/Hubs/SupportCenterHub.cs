@@ -2,7 +2,6 @@
 // SupportCenterHub.cs
 
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AutoGen.Contracts;
 using Microsoft.AutoGen.Core;
 
 namespace SupportCenter.Shared.Hubs;
@@ -31,7 +30,7 @@ public class SupportCenterHub(IAgentWorker client) : Hub<ISupportCenterHub>
 
         var evt = new UserChatInput { UserId = frontEndMessage.UserId, Message = frontEndMessage.Message };
 
-        await client.PublishEventAsync(evt.ToCloudEvent(frontEndMessage.UserId))
+        await client.PublishEventAsync(evt.ToCloudEvent(key: frontEndMessage.UserId, topic: Constants.TopicName))
             .ConfigureAwait(false);
     }
 
@@ -48,7 +47,7 @@ public class SupportCenterHub(IAgentWorker client) : Hub<ISupportCenterHub>
             (key, oldValue) => new Connection(connectionId: oldValue.Id, conversationId));
 
         var evt = new UserNewConversation { UserId = userId };
-        await client.PublishEventAsync(evt.ToCloudEvent(userId)).ConfigureAwait(false);
+        await client.PublishEventAsync(evt.ToCloudEvent(key: userId, topic: Constants.TopicName)).ConfigureAwait(false);
     }
 
     public async Task ConnectToAgent(string userId, string conversationId)
@@ -63,6 +62,6 @@ public class SupportCenterHub(IAgentWorker client) : Hub<ISupportCenterHub>
 
         // Notify the agents that a new user got connected.
         var evt = new UserConnected { UserId = userId };
-        await client.PublishEventAsync(evt.ToCloudEvent(userId)).ConfigureAwait(false);
+        await client.PublishEventAsync(evt.ToCloudEvent(userId, topic: Constants.TopicName)).ConfigureAwait(false);
     }
 }

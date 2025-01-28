@@ -32,7 +32,6 @@ builder.AddGrpcAgentWorker(builder.Configuration["AGENT_HOST"]!)
     .AddAgent<QnA>("qna")
     .AddAgent<SignalRAgent>("signalr-hub");
 
-builder.Services.AddSingleton<AgentWorker>();
 builder.Services.AddSingleton<ISignalRService, SignalRService>();
 
 // Allow any CORS origin if in DEV
